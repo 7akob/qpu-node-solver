@@ -1,8 +1,36 @@
 import itertools
 import numpy as np
 import dimod
+import os
+from dotenv import load_dotenv
+from iqm.iqm_client import IQMClient
+from iqm.qiskit_iqm import IQMProvider
+from qiskit import QuantumCircuit, transpile
 
-# Problem data
+# Load environment
+load_dotenv()
+SERVER_URL = os.getenv("SERVER_URL")
+API_KEY = os.getenv("API_KEY")
+
+print("Connecting to IQM at:", SERVER_URL)
+
+# Connect to IQM client
+client = IQMClient(SERVER_URL, api_token=API_KEY)
+print(client.get_backend_info())
+
+# Connect to provider
+provider = IQMProvider(iqm_server_url=SERVER_URL, api_token=API_KEY)
+backend = provider.get_backend('resonance_qpu')
+
+# Optional: run a simple test job to confirm connection
+qc = QuantumCircuit(2)
+qc.h(0)
+qc.cx(0, 1)
+job = backend.run(transpile(qc, backend))
+print("Running test circuit...")
+print(job.result().get_counts())
+
+# --- Your optimization model below ---
 sources = ['A', 'B']
 sinks = {'C': 3, 'D': 2}
 battery = 'E'
@@ -62,7 +90,6 @@ for src in sources:
 # Battery SOC balance
 incoming_to_bat = [v for v in var_names if v.endswith("_E")]
 outgoing_from_bat = [v for v in var_names if v.startswith("f_E_")]
-
 target_soc = 0.5 * battery_capacity
 
 for v in incoming_to_bat + outgoing_from_bat:
@@ -87,18 +114,6 @@ sampler = dimod.SimulatedAnnealingSampler()
 sampleset = sampler.sample(bqm, num_reads=200)
 best = sampleset.first
 
-# Results
 print("Best sample (binary values):")
 print(best.sample)
 print("Energy:", best.energy)
-
-print("\nInterpreting flows (active arcs = 1 means 1 unit flow):")
-for v in var_names:
-    if best.sample[v] == 1:
-        print(" ", v)
-
-def inflow_to(node, sample):
-    return sum(sample[v] for v in var_names if v.endswith("_" + node))
-
-for sink in sinks:
-    print(f"Sink {sink} demand {sinks[sink]}, received {inflow_to(sink, best.sample)}")
