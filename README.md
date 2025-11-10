@@ -2,6 +2,10 @@
 
 This project demonstrates how to solve a network flow optimization problem using IQM quantum computing tools and the QAOA (Quantum Approximate Optimization Algorithm).
 
+## 📚 Documentation
+
+**New users start here**: See [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) for a complete guide to all documentation.
+
 ## 🚀 Quick Start
 
 **New to this project?** Start here:
