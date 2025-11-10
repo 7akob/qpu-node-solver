@@ -65,6 +65,7 @@ python src/toy_5node_qubo.py
   - QAOA configuration
   - Result interpretation
   - Troubleshooting tips
+- **[NETWORK_DIAGRAM.md](NETWORK_DIAGRAM.md)** - Visual network topology and flow paths
 
 ## Example Results
 

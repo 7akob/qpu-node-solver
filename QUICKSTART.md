@@ -11,6 +11,8 @@ This quick start guide gets you running the 5-node network optimization problem 
 - Sinks: C (needs 3 units), D (needs 2 units)
 - Battery: E (4 units capacity, starts at 50%)
 
+**Visual**: See [NETWORK_DIAGRAM.md](NETWORK_DIAGRAM.md) for network topology diagram.
+
 ## Quick Setup
 
 ### 1. Install Dependencies

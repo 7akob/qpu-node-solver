@@ -11,6 +11,8 @@ We have a 5-node network with the following characteristics:
 - **1 Battery Node (E)**: A controllable storage device at 50% initial state of charge
 - **Fully Connected Network**: All valid arcs have flow capacity limits
 
+For a visual representation of the network topology, see [NETWORK_DIAGRAM.md](NETWORK_DIAGRAM.md).
+
 ### Problem Parameters
 
 | Component | Node | Parameter | Value |
