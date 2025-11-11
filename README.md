@@ -1,31 +1,26 @@
-# iqm-project
+# 5-node Flow Optimization on IQM Quantom Backend
 
-## Step 1 - Run it locally
-After writing codebase I tested it locally in an venv envoirement and go the following result:
-```
-Best sample (binary values): {'f_A_C': np.int8(1), 'f_A_D': np.int8(1), 'f_A_E': np.int8(1), 'f_B_C': np.int8(1), 'f_B_D': np.int8(0), 'f_B_E': np.int8(1), 'f_E_C': np.int8(1), 'f_E_D': np.int8(0)} Energy: -212.0 Interpreting flows (active arcs = 1 means 1 unit flow): f_A_C f_A_D f_A_E f_B_C f_B_E f_E_C Sink C demand 3, received 3 Sink D demand 2, received 1
-```
+## Overview
+This experiment demonstrates solving a 5-node notwork flow optimization problem using IQM's quantom hardware through the `iqm-client` and `qiskit` integration. The goal is to find a optimal binary flow assignments that minimize energy(cost) while satysfying demand and capacity constraints for each node.
 
-## Step 2 - Test connection
-Results from testing the iqm connection and running a test circuit, terminal:
+## How to setup
+1. Rename `.env.example` to `.env` and set your personal api_token and quantom computer url in the `.env` file. 
+2. Create a venv Python envoirement, **IMPORTANT for IQM use Python 3.11**
+```bash
+python3.11 -m venv iqm-env
+source iqm-env/bin/activate
 ```
- UserWarning: Your IQM Client version 31.0.0 was built for a different version of IQM Server. You might encounter issues. For the best experience, consider using a version of IQM Client that satisfies 32.1.1 <= iqm-client < 33.0.
-  warnings.warn(version_incompatibility_msg)
-Connected to IQM backend: IQM Backend
-Test circuit result: {'11': 484, '10': 29, '00': 470, '01': 17}
-Best sample (binary values):
-{'f_A_C': np.int8(1), 'f_A_D': np.int8(1), 'f_A_E': np.int8(1), 'f_B_C': np.int8(1), 'f_B_D': np.int8(1), 'f_B_E': np.int8(0), 'f_E_C': np.int8(0), 'f_E_D': np.int8(0)}
-Energy: -212.0
+3. Install dependencies (inside envoirement)
+```bash
+pip install -r requirements.txt
 ```
-
-result on iqm:
+4. Run the script
+```bash
+cd ~/.../iqm-project/src
+python run_5node_iqm.py
 ```
-[ { "11": 484, "00": 470 } ]
+5. Expected output
 ```
-
-## Step 3 - Run the problem on iqm
-```
-(iqm-env) jakob@fedora:~/Code/iqm-project/src$ python run_5node_iqm.py 
 Problem uses 8 binary variables:
   ['f_A_C', 'f_A_D', 'f_A_E', 'f_B_C', 'f_B_D', 'f_B_E', 'f_E_C', 'f_E_D']
 Built BQM: 8 linear terms; 18 quadratic terms
@@ -65,3 +60,48 @@ Source caps:
   B: 1/2 ✓
 
 ```
+
+## Problem Setup
+- Nodes A, B, C, D, E
+- Binary variables (8 total): represent possible flows between node pairs
+```python
+['f_A_C', 'f_A_D', 'f_A_E', 'f_B_C', 'f_B_D', 'f_B_E', 'f_E_C', 'f_E_D']
+```
+- Objective: minimize the total energy of the Binary Quadratic Model (BQM)
+- Constraints:
+  - Source capacity limits A and B
+  - Demand requirements at C and D
+
+## Quantom backend
+- Backend: IQM Quantom Processor (I used IQM Garnet)
+- Qubits available: 20
+- IQM Client version 32.1.1
+- Execution: 6 function evalutaions using real quantom hardware
+
+## Results
+- Optimization status: Finished (Max function evaluations reached)
+- Best parameters: `[1.489, 1.627]`
+- Minimum energy found: `-139.6035`
+- Best mesurement bitstring: `10101001`
+
+### Decoded active flows
+- A → C
+- A → E
+- B → D
+- E → D
+
+### Constraint check
+| Node | Required/Capacity | Actual | Status |
+|------|-------------------|--------|--------|
+| C    | 3                 | 1      | x      |
+| D    | 2                 | 2      | ✓      |
+| A    | <3                | 2      | ✓      |
+| B    | <2                | 1      | ✓      |
+
+
+## Interpretation
+The quantom optimizer successfully found a near-optimal flow configuration qith minimal violations:
+- Node D's demand fully satisfied
+- Node C's under supplied (1/3)
+- All source capacity constraints respected
+- Indicates strong performance despite limited iteration count and hardware noise
