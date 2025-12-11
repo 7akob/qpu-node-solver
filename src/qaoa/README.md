@@ -1,0 +1,1 @@
+QAOA anstatz, shared for IonQ and IQM (and simulated backend)

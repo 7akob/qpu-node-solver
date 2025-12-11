@@ -1,0 +1,1 @@
+Here are some older solvers before restructuring of project, can be used for smaller tests and experiments

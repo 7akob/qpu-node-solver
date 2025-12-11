@@ -1,0 +1,15 @@
+dimod>=0.12.0
+numpy>=1.24.0,<2.0.0
+scipy>=1.10.0
+python-dotenv>=1.0.0
+
+# Qiskit (use 1.x versions - modern API)
+qiskit==1.4.2
+qiskit-algorithms==0.4.0
+
+# IonQ provider (compatible with Qiskit 1.x)
+qiskit-ionq>=0.5.0
+
+#IQM client
+iqm-client[qiskit]==32.1.1
+
