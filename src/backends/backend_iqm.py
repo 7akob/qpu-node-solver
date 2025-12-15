@@ -1,26 +1,32 @@
 import os
-from dotenv import load_dotenv
-from iqm.qiskit_iqm import IQMProvider, transpile_to_IQM
-from src.qubo.qubo_utils import expected_energy
-
-load_dotenv()
+from iqm.qiskit_iqm import IQMProvider
+from qiskit.primitives import Sampler
 
 class IQMBackend:
-    def __init__(self, shots=512):
-        server = os.getenv("IQM_SERVER_URL") or os.getenv("SERVER_URL")
-        token = os.getenv("IQM_API_TOKEN") or os.getenv("RESONANCE_API_TOKEN")
+    def __init__(self, shots=1024):
+        url = os.environ["IQM_URL"]
+        device = os.environ["IQM_DEVICE"]
+        token = os.environ.get("IQM_TOKEN", None)
 
-        if not server or not token:
-            raise RuntimeError("IQM credentials not set")
+        provider = IQMProvider(
+            url=url,
+            token=token
+        )
 
-        provider = IQMProvider(server, token=token)
-        self.backend = provider.get_backend()
+        self.backend = provider.get_backend(device)
+        self.sampler = Sampler(backend=self.backend)
         self.shots = shots
 
+        print(f"Connected to IQM backend: {self.backend.name()}")
+
     def run(self, qc, bqm, var_names):
-        qc_iqm = transpile_to_IQM(qc, self.backend)
-        job = self.backend.run(qc_iqm, shots=self.shots)
+        job = self.sampler.run(
+            circuits=[qc],
+            shots=self.shots
+        )
         result = job.result()
-        counts = result.get_counts()
-        energy = expected_energy(counts, bqm, var_names)
+
+        counts = result.quasi_dists[0]
+        energy = bqm.energy_from_samples(counts, var_names)
+
         return counts, energy

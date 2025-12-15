@@ -1,6 +1,9 @@
 import argparse
 from scipy.optimize import minimize
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from src.qubo.problem_network import build_network_qubo
 from src.qaoa.qaoa_circuit import build_qaoa_circuit
 from src.backends import get_backend
