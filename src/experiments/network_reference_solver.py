@@ -77,31 +77,31 @@ def energy(sample):
     )
 
 
+if __name__ == "__main__":
+    best_E = float("inf")
+    best_sample = None
 
-best_E = float("inf")
-best_sample = None
+    for bits in itertools.product([0, 1], repeat=len(var_names)):
+        sample = dict(zip(var_names, bits))
+        E = energy(sample)
 
-for bits in itertools.product([0, 1], repeat=len(var_names)):
-    sample = dict(zip(var_names, bits))
-    E = energy(sample)
+        if E < best_E:
+            best_E = E
+            best_sample = sample
 
-    if E < best_E:
-        best_E = E
-        best_sample = sample
+    print("Best energy:", best_E)
+    print("Best solution:")
+    for v, val in best_sample.items():
+        if val == 1:
+            print(" ", v)
 
-print("Best energy:", best_E)
-print("Best solution:")
-for v, val in best_sample.items():
-    if val == 1:
-        print(" ", v)
+    print("\nTotal cost:", cost_term(best_sample))
 
-print("\nTotal cost:", cost_term(best_sample))
-
-print("\nConstraint check:")
-print("A out:", best_sample["f_A_C"] + best_sample["f_A_D"] + best_sample["f_A_E"])
-print("B out:", best_sample["f_B_C"] + best_sample["f_B_D"] + best_sample["f_B_E"])
-print("C in:", best_sample["f_A_C"] + best_sample["f_B_C"] + best_sample["f_E_C"])
-print("D in:", best_sample["f_A_D"] + best_sample["f_B_D"] + best_sample["f_E_D"])
-print("E in:", best_sample["f_A_E"] + best_sample["f_B_E"])
-print("E out:", best_sample["f_E_C"] + best_sample["f_E_D"])
+    print("\nConstraint check:")
+    print("A out:", best_sample["f_A_C"] + best_sample["f_A_D"] + best_sample["f_A_E"])
+    print("B out:", best_sample["f_B_C"] + best_sample["f_B_D"] + best_sample["f_B_E"])
+    print("C in:", best_sample["f_A_C"] + best_sample["f_B_C"] + best_sample["f_E_C"])
+    print("D in:", best_sample["f_A_D"] + best_sample["f_B_D"] + best_sample["f_E_D"])
+    print("E in:", best_sample["f_A_E"] + best_sample["f_B_E"])
+    print("E out:", best_sample["f_E_C"] + best_sample["f_E_D"])
 
