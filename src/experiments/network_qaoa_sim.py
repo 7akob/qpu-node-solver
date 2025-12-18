@@ -32,7 +32,7 @@ from network_reference_solver import costs, var_names
 # ----------------------------
 
 index = {v: i for i, v in enumerate(var_names)}
-P = 5  # penalty weight, experiments: 5, 10, 15, 20, 30, 50
+P = 50  # penalty weight, experiments: 5, 10, 15, 20, 30, 50
 
 
 # ----------------------------
