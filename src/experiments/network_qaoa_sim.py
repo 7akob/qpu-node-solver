@@ -32,7 +32,7 @@ from network_reference_solver import costs, var_names
 # ----------------------------
 
 index = {v: i for i, v in enumerate(var_names)}
-P = 50.0  # penalty weight
+P = 5  # penalty weight, experiments: 5, 10, 15, 20, 30, 50
 
 
 # ----------------------------
@@ -105,6 +105,22 @@ def build_qubo() -> Qubo:
 
     return Q
 
+def is_feasible(bits):
+    A_out = bits[0] + bits[1] + bits[4]
+    B_out = bits[2] + bits[3] + bits[5]
+    C_in = bits[0] + bits[2] + bits[6]
+    D_in = bits[1] + bits[3] + bits[7]
+    E_in = bits[4] + bits[5]
+    E_out = bits[6] + bits[7]
+
+    return (
+        A_out <= 1 and
+        B_out <= 1 and
+        C_in == 1 and
+        D_in == 1 and
+        E_in == E_out
+    )
+
 
 # ----------------------------
 # 3) QUBO energy + brute force
@@ -122,6 +138,7 @@ def brute_force_best(Q: Qubo, n: int) -> Tuple[float, Tuple[int, ...]]:
         if e < best_e:
             best_e = e
             best_bits = bits
+    print("Feasible?", is_feasible(best_bits))
     return best_e, best_bits  # type: ignore
 
 
@@ -239,6 +256,46 @@ def main():
     qc = build_qaoa_circuit_p2(n, h, J, gamma1, beta1, gamma2, beta2)
     qc_t = transpile(qc, backend)
     counts = backend.run(qc_t, shots=shots).result().get_counts()
+
+    def bitstr_to_bits(bitstr: str) -> tuple[int, ...]:
+        return tuple(int(b) for b in bitstr[::-1])
+
+    best_feasible = None
+    best_feasible_E = float("inf")
+    best_feasible_count = 0
+
+    best_any = None
+    best_any_E = float("inf")
+    best_any_count = 0
+
+    for bitstr, cnt in counts.items():
+        bits = bitstr_to_bits(bitstr)
+        E = qubo_energy(bits, Q)
+
+        if E < best_any_E:
+            best_any_E = E
+            best_any = bits
+            best_any_count = cnt
+
+        if is_feasible(bits) and E < best_feasible_E:
+            best_feasible_E = E
+            best_feasible = bits
+            best_feasible_count = cnt
+
+    print("\n=== Measured bests ===")
+    print("Best ANY:", "".join(map(str, best_any)),
+        "E=", best_any_E, "count=", best_any_count,
+        "feasible?", is_feasible(best_any))
+
+    if best_feasible is None:
+        print("No feasible samples measured (increase P or shots).")
+    else:
+        print("Best FEASIBLE:", "".join(map(str, best_feasible)),
+            "E=", best_feasible_E,
+            "count=", best_feasible_count)
+        print("Active flows:",
+            [var_names[i] for i,b in enumerate(best_feasible) if b])
+
 
     best = max(counts, key=counts.get)[::-1]
     bits = tuple(int(b) for b in best)
