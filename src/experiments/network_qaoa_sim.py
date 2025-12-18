@@ -32,7 +32,7 @@ from network_reference_solver import costs, var_names
 # ----------------------------
 
 index = {v: i for i, v in enumerate(var_names)}
-P = 50  # penalty weight, experiments: 5, 10, 15, 20, 30, 50
+P = 30  # penalty weight, experiments: 5, 10, 15, 20, 30, 50
 
 
 # ----------------------------
@@ -217,7 +217,7 @@ def main():
     _, h, J = qubo_to_ising(Q, n)
 
     backend = Aer.get_backend("aer_simulator")
-    shots = 1024
+    shots = 8192 # Experiments: 56, 512, 1024, 2048, 4096, 8192
 
     def expected_qubo_energy(gb: np.ndarray) -> float:
         gamma1, beta1, gamma2, beta2 = map(float, gb)

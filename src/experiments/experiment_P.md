@@ -1,6 +1,10 @@
-# Experiments
+# Experiments with P
+
+Shots set at 1024 for full experiment
 
 `network_qaoa_sim.py`
+
+## Summary
 
 For penalty values P ∈ [5, 50], p=1 and p=2 QAOA consistently samples globally optimal feasible solutions of the network QUBO, although these solutions appear with low probability and are not the most frequent measurement outcomes. As P increases, the energy landscape becomes increasingly constraint-dominated, leading to distributions concentrated on feasible but sub-optimal states, with optimal solutions residing in the distribution tails. Degenerate global minima are observed, resulting in multiple distinct optimal routing configurations with identical QUBO energy. 
 
